@@ -1,4 +1,4 @@
-# Import the necessary package
+# Import the necessary package import sys
 import sys
 import datetime
 import random
@@ -52,21 +52,18 @@ else:
 today = datetime.date.today()
 target_date = datetime.date(2023, 9, 4)
 num_days = (target_date - today).days
+if num_days < 1:
+    sys.exit()
 
-# set your prompt with all variables
-gpt_prompt = (
-    "Tell me an interesting fact about Clemson or Clemson Football that happened " + str(num_days) + " years ago. Use 150 words or less."
-)
+year = 2023 - num_days
 
-print("---- gpt prompt ----")
-print(gpt_prompt)
 
 # Ask ChatGPT your question
 chat_response = openai.ChatCompletion.create(
     model="gpt-3.5-turbo", 
     messages=[
         {"role": "system", "content": "You are a historian and author writing interesting notes to your students."},
-        {"role": "user", "content": gpt_prompt}
+        {"role": "user", "content": "Tell me an interesting fact about Clemson or Clemson Football that happened in the year " + str(year) + ". Make sure it is historically accurate and not fabricated. Use 150 words or less."}
     ],
     temperature=0.75
 )
@@ -76,7 +73,7 @@ coach_quote = openai.ChatCompletion.create(
     model="gpt-3.5-turbo", 
     messages=[
         {"role": "system", "content": "You are a college football coach and motivational speaker."},
-        {"role": "user", "content": "Tell us something a college football coach would say in 20 words or less. Beautifully poetic with football imagery is a nice touch"}
+        {"role": "user", "content": "Tell us something a college football coach would say. Make sure it is fabricated and do not attribute any author. Use exactly 20 words or less."}
     ],
     temperature=0.75
 )
@@ -86,7 +83,7 @@ random_fact = openai.ChatCompletion.create(
     model="gpt-3.5-turbo", 
     messages=[
         {"role": "system", "content": "You are a statistician and college football analyst."},
-        {"role": "user", "content": "Tell us about an interesting college football fact and link it to a newsworthy event in the last 30 years. Use 20 words or less."}
+        {"role": "user", "content": "Tell us about a college football game where Clemson beat South Carolina. Make sure it is historically accurate. Use exactly 20 words or less."}
     ],
     temperature=0.75
 )
@@ -95,9 +92,7 @@ random_fact = openai.ChatCompletion.create(
 dalle_chat_response1 = openai.ChatCompletion.create(
     model="gpt-3.5-turbo", 
     messages=[
-        {"role": "assistant", "content": chat_response['choices'][0]['message'].get("content")},
-        {"role": "user", "content": "Succinctly describe image for summary of the provided story. Use 10 words or less. \
-            Make sure the number " + str(num_days) + " appears."},
+        {"role": "user", "content": "Pick a random art style and create an image of a clemson football player wearing the number " + str(num_days) + " in an orange and purple jersey doing something completely random"},
 
     ],
     temperature=0.75
@@ -139,14 +134,14 @@ slack_response = webhook_client.send(
             "type": "header",
             "text": {
                 "type": "plain_text",
-                "text": ":football: :clemson: :football:  CLEMSON FOOTBAW COUNTDOWN  :footbaw: :clemson: :footbaw:",
+                "text": str(num_days) + " DAYS! :football: :clemson: :football:  CLEMSON FOOTBAW COUNTDOWN"
             },
         },
         {
             "type": "context",
             "elements": [
                 {
-                    "text": coach_quote['choices'][0]['message'],
+                    "text": coach_quote['choices'][0]['message'].get("content") + " -- chatGPT",
                     "type": "mrkdwn",
                 }
             ],
@@ -161,7 +156,7 @@ slack_response = webhook_client.send(
             "type": "image",
             "title": {
                 "type": "plain_text",
-                "text": random_fact['choices'][0]['message'],
+                "text": random_fact['choices'][0]['message'].get("content"),
                 "emoji": True,
             },
             "image_url": clean_url1,
