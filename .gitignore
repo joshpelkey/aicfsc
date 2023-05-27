@@ -1,0 +1,6 @@
+*.jpg
+*.png
+*.log
+dev_book_of_john.py
+keys.py
+__pycache__/*
