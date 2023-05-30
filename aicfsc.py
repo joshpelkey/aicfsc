@@ -62,10 +62,12 @@ year = 2023 - num_days
 chat_response = openai.ChatCompletion.create(
     model="gpt-3.5-turbo", 
     messages=[
-        {"role": "system", "content": "You are a historian and author writing interesting notes to your students."},
-        {"role": "user", "content": "Tell me an interesting fact about Clemson or Clemson Football that happened in the year " + str(year) + ". Make sure it is historically accurate and not fabricated. Use 150 words or less."}
+        {"role": "system", "content": "You are a historian and author writing interesting notes about college football games."},
+        {"role": "user", "content": "Tell me an interesting fact about Clemson or Clemson Football that happened in the year " 
+            + str(year) + ". Sprinkle in fantastical elements to the summary, with references to common fantasy themes and objects like super heros, star wars, unicors, giants, gnomes, trolls, etc. Make sure the core statistics are historically accurate and not fabricated. "
+            + "Use 150 words or less. Start your response with " + str(num_days) + " ago in " + str(year) + "..."}
     ],
-    temperature=0.75
+    temperature=0.95
 )
 
 # Ask ChatGPT your question
@@ -73,29 +75,29 @@ coach_quote = openai.ChatCompletion.create(
     model="gpt-3.5-turbo", 
     messages=[
         {"role": "system", "content": "You are a college football coach and motivational speaker."},
-        {"role": "user", "content": "Tell us something a college football coach would say. Make sure it is fabricated and do not attribute any author. Use exactly 20 words or less."}
+        {"role": "user", "content": "Pick from a list of 100 human emotions. Tell us something a college football coach would say related to the emotion. Make sure it is fabricated and do not attribute any author. Use exactly 20 words or less."}
     ],
-    temperature=0.75
+    temperature=0.95
 )
 
 # Ask ChatGPT your question
 random_fact = openai.ChatCompletion.create(
     model="gpt-3.5-turbo", 
     messages=[
-        {"role": "system", "content": "You are a statistician and college football analyst."},
-        {"role": "user", "content": "Tell us about a college football game where Clemson beat South Carolina. Make sure it is historically accurate. Use exactly 20 words or less."}
+        {"role": "system", "content": "You are a Clemson football fan who hates the University of South Carolina."},
+        {"role": "user", "content": "Compare the University of South Carolina's football team to something bad that happened in " + str(year) + ". Make the football team sound weak, forgettable, and unathletic. Use 20 words or less."}
     ],
-    temperature=0.75
+    temperature=0.95
 )
 
 # ask for a dalle prompt 1
 dalle_chat_response1 = openai.ChatCompletion.create(
     model="gpt-3.5-turbo", 
     messages=[
-        {"role": "user", "content": "Pick a random art style and create an image of a clemson football player wearing the number " + str(num_days) + " in an orange and purple jersey doing something completely random"},
+        {"role": "user", "content": "Pick a random art style from abstract art, action painting, art deco, cubism, expressionism, pop art, surrealism, photorealistic and create an image of a clemson football player wearing the number " + str(num_days) + " in an orange and purple jersey doing something completely random that involves a common fantasy theme. Make the prompt descriptive but succinct, using 20 words or less."},
 
     ],
-    temperature=0.75
+    temperature=0.95
 )
 
 
@@ -128,7 +130,7 @@ with open(home_dir + img_path1, 'rb') as f:
 
 # Send the response to the incoming Slack webhook
 slack_response = webhook_client.send(
-    text= str(num_days) + "days until Clemson FOOTBAW!!1",
+    text= str(num_days) + " days until Clemson FOOTBAW!!1",
     blocks=[
         {
             "type": "header",
