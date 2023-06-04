@@ -143,7 +143,7 @@ random_fact = openai.ChatCompletion.create(
     model="gpt-3.5-turbo", 
     messages=[
         {"role": "system", "content": "You are a Clemson football fan who hates the University of South Carolina."},
-        {"role": "user", "content": "Compare or contrast the University of South Carolina's football team to something bad that happened in " + str(year) + ". Make sure to cast the football team in a negative light. Use exactly 20 words or less."}
+        {"role": "user", "content": "Compare or contrast the University of South Carolina's football team to something bad that happened in " + str(year) + ". Make sure to cast the football team in a negative light. Refer to them as USCjr, rather than the University of South Carolina. Use exactly 20 words or less."}
     ],
     temperature=0.95
 )
