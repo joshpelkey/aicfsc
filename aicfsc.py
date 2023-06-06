@@ -58,6 +58,7 @@ if num_days < 1:
 year = 2023 - num_days
 
 themes = [
+    "Gnomes",
     "Artificial Intelligence",
     "Time Travel",
     "Space Exploration",
