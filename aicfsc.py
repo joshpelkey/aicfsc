@@ -122,11 +122,12 @@ chat_response = openai.ChatCompletion.create(
     messages=[
         {"role": "system", "content": "You are a historian and author writing fictional accounts of college football games."},
         {"role": "user", "content": "Write a historical fiction story based on the Clemson football program in year " 
-            + str(year) + ". Make sure the games and statistics used are historically accurate but add in themes of " 
+            + str(year) + ". Pick either a specific game, a specific play during a game, or the entire season to tell a story about. "
+            + "Make sure the games and statistics used are historically accurate but add in themes of " 
             + chosen_themes[0] + " and " + chosen_themes[1] + ". Use 150 words or less. Start your response with " 
             + str(num_days) + " ago in " + str(year) + "..."}
     ],
-    temperature=0.95
+    temperature=1.25
 )
 
 # Ask ChatGPT your question
@@ -136,7 +137,7 @@ coach_quote = openai.ChatCompletion.create(
         {"role": "system", "content": "You are a college football coach and motivational speaker."},
         {"role": "user", "content": "Pick from a list of 100 human emotions. Tell us something a college football coach would say related to the emotion. Make it sound down home or southern in some way. Southern sayings are known for their use of metaphors, similies, and exaggerations. Can be deeply rooted in southern culture, agricultrual, or relgious in nature.  Make sure it is fabricated and do not attribute any author. Use exactly 20 words or less. Only return the quote. Do not return the emotion that was chosen."}
     ],
-    temperature=0.95
+    temperature=1.25
 )
 
 # Ask ChatGPT your question
@@ -146,7 +147,7 @@ random_fact = openai.ChatCompletion.create(
         {"role": "system", "content": "You are a Clemson football fan who hates the University of South Carolina."},
         {"role": "user", "content": "Compare or contrast the University of South Carolina's football team to something bad that happened in " + str(year) + ". Make sure to cast the football team in a negative light. Refer to them as USCjr, rather than the University of South Carolina. Use exactly 20 words or less."}
     ],
-    temperature=0.95
+    temperature=1.25
 )
 
 # ask for a dalle prompt 1
@@ -156,7 +157,7 @@ dalle_chat_response1 = openai.ChatCompletion.create(
         {"role": "user", "content": "Pick a random art style from abstract art, action painting, art deco, cubism, expressionism, pop art, surrealism, photorealistic and create an image of a clemson football player wearing the number " + str(num_days) + " in an orange and purple jersey doing something completely random that involves " + chosen_themes[0] + " and " + chosen_themes[1] + ". Make the prompt descriptive but succinct, using 20 words or less."},
 
     ],
-    temperature=0.95
+    temperature=1.25
 )
 
 
