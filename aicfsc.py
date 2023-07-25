@@ -110,7 +110,45 @@ themes = [
     "Supernatural Powers",
     "Genetic Mutations",
     "Invisibility",
-    "Nano-enhancements"
+    "Nano-enhancements",
+    "Love and romance",
+    "Coming of age",
+    "Overcoming adversity",
+    "Self-discovery",
+    "Friendship and loyalty",
+    "Quest and adventure",
+    "Good vs. evil",
+    "Survival in a hostile environment",
+    "Loss and grief",
+    "Hope and redemption",
+    "Identity and belonging",
+    "Power and corruption",
+    "Social injustice",
+    "War and conflict",
+    "Exploration of the unknown",
+    "Fate and destiny",
+    "Resilience and perseverance",
+    "Sacrifice for a greater cause",
+    "Betrayal and deception",
+    "Nature and the environment",
+    "Mystery and suspense",
+    "Family secrets",
+    "Legacy and inheritance",
+    "Rebellion against authority",
+    "Challenges of parenthood",
+    "Philosophical exploration",
+    "Mental health and coping",
+    "Ethical dilemmas",
+    "Psychological thriller",
+    "Struggle for power",
+    "Art and creativity",
+    "Forbidden love",
+    "Warriors and heroes",
+    "Historical events and figures",
+    "The search for truth",
+    "Small-town secrets",
+    "Transformation and metamorphosis",
+    "Fame and its consequences"
 ]
 
 chosen_themes = random.sample(themes, 2)
@@ -122,8 +160,8 @@ chat_response = openai.ChatCompletion.create(
     messages=[
         {"role": "system", "content": "You are a historian and author writing fictional accounts of college football games."},
         {"role": "user", "content": "Write a historical fiction story based on the Clemson football program in year " 
-            + str(year) + ". Pick either a specific game, a specific play during a game, or the entire season to tell a story about. "
-            + "Make sure the games and statistics used are historically accurate but add in themes of " 
+            + str(year) + "."
+            + "Make sure the names and games used are historically accurate but add in themes of " 
             + chosen_themes[0] + " and " + chosen_themes[1] + ". Use 150 words or less. Start your response with " 
             + str(num_days) + " ago in " + str(year) + "..."}
     ],
