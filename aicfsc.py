@@ -50,12 +50,12 @@ else:
 
 # variables for our book (ehm, post)
 today = datetime.date.today()
-target_date = datetime.date(2023, 9, 4)
+target_date = datetime.date(2024, 8, 31)
 num_days = (target_date - today).days
 if num_days < 1:
     sys.exit()
 
-year = 2023 - num_days
+year = 2024 - num_days
 
 themes = [
     "Gnomes",
@@ -155,8 +155,8 @@ chosen_themes = random.sample(themes, 2)
 
 
 # Ask ChatGPT your question
-chat_response = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo", 
+chat_response = openai.chat.completions.create(
+    model="gpt-4o", 
     messages=[
         {"role": "system", "content": "You are a historian and author writing fictional accounts of college football games."},
         {"role": "user", "content": "Write a historical fiction story based on the Clemson football program in year " 
@@ -169,8 +169,8 @@ chat_response = openai.ChatCompletion.create(
 )
 
 # Ask ChatGPT your question
-coach_quote = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo", 
+coach_quote = openai.chat.completions.create(
+    model="gpt-4o", 
     messages=[
         {"role": "system", "content": "You are a college football coach and motivational speaker."},
         {"role": "user", "content": "Pick from a list of 100 human emotions. Tell us something a college football coach would say related to the emotion. Make it sound down home or southern in some way. Southern sayings are known for their use of metaphors, similies, and exaggerations. Can be deeply rooted in southern culture, agricultrual, or relgious in nature.  Make sure it is fabricated and do not attribute any author. Use exactly 20 words or less. Only return the quote. Do not return the emotion that was chosen."}
@@ -179,8 +179,8 @@ coach_quote = openai.ChatCompletion.create(
 )
 
 # Ask ChatGPT your question
-random_fact = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo", 
+random_fact = openai.chat.completions.create(
+    model="gpt-4o", 
     messages=[
         {"role": "system", "content": "You are a Clemson football fan who hates the University of South Carolina."},
         {"role": "user", "content": "Compare or contrast the University of South Carolina's football team to something bad that happened in " + str(year) + ". Make sure to cast the football team in a negative light. Refer to them as USCjr, rather than the University of South Carolina. Use exactly 20 words or less."}
@@ -189,10 +189,10 @@ random_fact = openai.ChatCompletion.create(
 )
 
 # ask for a dalle prompt 1
-dalle_chat_response1 = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo", 
+dalle_chat_response1 = openai.chat.completions.create(
+    model="gpt-4o", 
     messages=[
-        {"role": "user", "content": "Pick a random art style from abstract art, action painting, art deco, cubism, expressionism, pop art, surrealism, photorealistic and create an image of a clemson football player wearing the number " + str(num_days) + " in an orange and purple jersey doing something completely random that involves " + chosen_themes[0] + " and " + chosen_themes[1] + ". Make the prompt descriptive but succinct, using 20 words or less."},
+        {"role": "user", "content": "Pick a random art style from abstract art, action painting, art deco, cubism, expressionism, pop art, surrealism, photorealistic and create an image of a clemson football player wearing the number " + str(num_days) + " in an orange and purple jersey doing something completely random that involves " + chosen_themes[0] + " and " + chosen_themes[1] + ". Make the prompt descriptive but succinct, using 50 words or less."},
 
     ],
     temperature=1.25
@@ -201,11 +201,16 @@ dalle_chat_response1 = openai.ChatCompletion.create(
 
 # print stuffs to check
 print("---- dalle prompts ----")
-print(dalle_chat_response1['choices'][0]['message'].get("content"))
+print(dalle_chat_response1.choices[0].message.content)
 
 # generate a dope DALL-E image
-dalle_response1 = openai.Image.create(prompt=dalle_chat_response1['choices'][0]['message'].get("content"), size="256x256")
-image_url1 = dalle_response1["data"][0]["url"]
+dalle_response1 = openai.images.generate(
+        model="dall-e-3",
+        prompt=dalle_chat_response1.choices[0].message.content,
+        n=1,
+        style="vivid",
+        size="1024x1024")
+image_url1 = dalle_response1.data[0].url
 
 # get the first image and store it on imgur
 img_data1 = requests.get(image_url1).content
@@ -241,7 +246,7 @@ slack_response = webhook_client.send(
             "type": "context",
             "elements": [
                 {
-                    "text": coach_quote['choices'][0]['message'].get("content") + " -- DaboGPT",
+                    "text": coach_quote.choices[0].message.content + " -- DaboGPT",
                     "type": "mrkdwn",
                 }
             ],
@@ -249,18 +254,18 @@ slack_response = webhook_client.send(
         {"type": "divider"},
         {
             "type": "section",
-            "text": {"type": "mrkdwn", "text": chat_response['choices'][0]['message'].get("content")},
+            "text": {"type": "mrkdwn", "text": chat_response.choices[0].message.content},
         },
         {"type": "divider"},
         {
             "type": "image",
             "title": {
                 "type": "plain_text",
-                "text": random_fact['choices'][0]['message'].get("content"),
+                "text": random_fact.choices[0].message.content,
                 "emoji": True,
             },
             "image_url": clean_url1,
-            "alt_text": dalle_chat_response1['choices'][0]['message'].get("content"),
+            "alt_text": dalle_chat_response1.choices[0].message.content,
         },
     ],
 )
