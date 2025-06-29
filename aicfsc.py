@@ -2,6 +2,7 @@
 import sys
 import datetime
 import random
+import base64
 import openai
 from slack_sdk.webhook import WebhookClient
 from slack_sdk import WebClient
@@ -50,12 +51,12 @@ else:
 
 # variables for our book (ehm, post)
 today = datetime.date.today()
-target_date = datetime.date(2024, 8, 31)
+target_date = datetime.date(2025, 8, 30)
 num_days = (target_date - today).days
 if num_days < 1:
     sys.exit()
 
-year = 2024 - num_days
+year = 2025 - num_days
 
 themes = [
     "Gnomes",
@@ -156,13 +157,13 @@ chosen_themes = random.sample(themes, 2)
 
 # Ask ChatGPT your question
 chat_response = openai.chat.completions.create(
-    model="gpt-4o", 
+    model="gpt-4.1-mini", 
     messages=[
-        {"role": "system", "content": "You are a historian and author writing fictional accounts of college football games."},
+        {"role": "system", "content": "You are a college football historian and statistical genius. You specialize in the Clemson football team and know all of their season stats, players, coaches, and traditions."},
         {"role": "user", "content": "Write a historical fiction story based on the Clemson football program in year " 
             + str(year) + "."
             + "Make sure the names and games used are historically accurate but add in themes of " 
-            + chosen_themes[0] + " and " + chosen_themes[1] + ". Use 150 words or less. Start your response with " 
+            + chosen_themes[0] + " and " + chosen_themes[1] + ". Use your imagination and make the story fun (it could be a short story, a poem, a song, etc). Use 150 words or less. Start your response with " 
             + str(num_days) + " ago in " + str(year) + "..."}
     ],
     temperature=1
@@ -170,7 +171,7 @@ chat_response = openai.chat.completions.create(
 
 # Ask ChatGPT your question
 coach_quote = openai.chat.completions.create(
-    model="gpt-4o", 
+    model="gpt-4.1-mini", 
     messages=[
         {"role": "system", "content": "You are a college football coach and motivational speaker."},
         {"role": "user", "content": "Pick from a list of 100 human emotions. Tell us something a college football coach would say related to the emotion. Make it sound down home or southern in some way. Southern sayings are known for their use of metaphors, similies, and exaggerations. Can be deeply rooted in southern culture, agricultrual, or relgious in nature.  Make sure it is fabricated and do not attribute any author. Use exactly 20 words or less. Only return the quote. Do not return the emotion that was chosen."}
@@ -180,7 +181,7 @@ coach_quote = openai.chat.completions.create(
 
 # Ask ChatGPT your question
 random_fact = openai.chat.completions.create(
-    model="gpt-4o", 
+    model="gpt-4.1-mini", 
     messages=[
         {"role": "system", "content": "You are a Clemson football fan who hates the University of South Carolina."},
         {"role": "user", "content": "Compare or contrast the University of South Carolina's football team to something bad that happened in " + str(year) + ". Make sure to cast the football team in a negative light. Refer to them as USCjr, rather than the University of South Carolina. Use exactly 20 words or less."}
@@ -190,9 +191,9 @@ random_fact = openai.chat.completions.create(
 
 # ask for a dalle prompt 1
 dalle_chat_response1 = openai.chat.completions.create(
-    model="gpt-4o", 
+    model="gpt-4.1-mini", 
     messages=[
-        {"role": "user", "content": "Pick a random art style from abstract art, action painting, art deco, cubism, expressionism, pop art, surrealism, photorealistic and create an image of a clemson football player wearing the number " + str(num_days) + " in an orange and purple jersey doing something completely random that involves " + chosen_themes[0] + " and " + chosen_themes[1] + ". Make the prompt descriptive but succinct, using 50 words or less."},
+        {"role": "user", "content": "Pick a random art style from abstract art, action painting, art deco, cubism, expressionism, pop art, surrealism, photorealistic and create an image of a clemson football player wearing the number " + str(num_days) + " in an orange and purple Clemson Tigers football jersey doing something completely random that involves " + chosen_themes[0] + " and " + chosen_themes[1] + ". Incorporate the Clemson tiger paw logo, either on the football helmet or in the picture. Make the prompt descriptive but succinct, using 50 words or less."},
 
     ],
     temperature=1
@@ -204,34 +205,40 @@ print("---- dalle prompts ----")
 print(dalle_chat_response1.choices[0].message.content)
 
 # generate a dope DALL-E image
-dalle_response1 = openai.images.generate(
-        model="dall-e-3",
-        prompt=dalle_chat_response1.choices[0].message.content,
-        n=1,
-        style="vivid",
-        size="1024x1024")
-image_url1 = dalle_response1.data[0].url
+print("---- generate image ----")
+dalle_response1 = openai.responses.create(
+        model="gpt-4.1-mini",
+        input= dalle_chat_response1.choices[0].message.content,
+        tools=[{"type": "image_generation"}],
+)
 
+# Save the image to a file
+print("---- saving the file ----")
+image_data = [
+    output.result
+    for output in dalle_response1.output
+    if output.type == "image_generation_call"
+]
+
+if image_data:
+    image_base64 = image_data[0]
+    with open("aicfsc.png", "wb") as f:
+        f.write(base64.b64decode(image_base64))
+
+print("---- uploading to imgur ----")
 # get the first image and store it on imgur
-img_data1 = requests.get(image_url1).content
-with open(home_dir  + img_path1, "wb") as handler:
-    handler.write(img_data1)
-
 imgur1 = subprocess.run(
     [home_dir + "/.local/bin/imgur-uploader", home_dir + img_path1],
     stdout=subprocess.PIPE,
 )
 
-extractor1 = URLExtract()
-imgur_str1 = str(imgur1)
-url1 = extractor1.find_urls(imgur_str1)
-
-clean_url1 = url1[0][:-4]
-
-with open(home_dir + img_path1, 'rb') as f:
-    img1 = f.read()
+extractor = URLExtract()
+imgur_str = str(imgur1)
+urls = extractor.find_urls(imgur_str)
+clean_url1 = urls[0][:-4]  # Remove trailing newline character
 
 # Send the response to the incoming Slack webhook
+print("---- sending to slack ----")
 slack_response = webhook_client.send(
     text= str(num_days) + " days until Clemson FOOTBAW!!1",
     blocks=[
@@ -272,9 +279,6 @@ slack_response = webhook_client.send(
 
 print("---- chat response ----")
 print(chat_response)
-
-print("---- dalle responses ----")
-print(dalle_response1)
 
 print("---- cleanurl ----")
 print(clean_url1)
