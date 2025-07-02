@@ -193,8 +193,14 @@ random_fact = openai.chat.completions.create(
 dalle_chat_response1 = openai.chat.completions.create(
     model="gpt-4.1-mini", 
     messages=[
-        {"role": "user", "content": "Pick a random art style from abstract art, action painting, art deco, cubism, expressionism, pop art, surrealism, photorealistic and create an image of a clemson football player wearing the number " + str(num_days) + " in an orange and purple Clemson Tigers football jersey doing something completely random that involves " + chosen_themes[0] + " and " + chosen_themes[1] + ". Incorporate the Clemson tiger paw logo, either on the football helmet or in the picture. Make the prompt descriptive but succinct, using 50 words or less."},
+        {"role": "system", "content": "You are an expert image prompt engineer. "
+                                     "Your task is to create a concise and evocative prompt that captures the "
+                                     "themes of the story." },
 
+        {"role": "user", "content": "Generate a prompt, less than 100 words, for an image based on " + chat_response.choices[0].message.content +
+                                     "---- Incorporate a clemson football player wearing the number " 
+                                      + str(num_days) + " in an orange and purple Clemson Tigers football jersey. "
+                                      "Incorporate the Clemson tiger paw logo, either on the football helmet or in the picture. "}
     ],
     temperature=1
 )
@@ -222,7 +228,7 @@ image_data = [
 
 if image_data:
     image_base64 = image_data[0]
-    with open("aicfsc.png", "wb") as f:
+    with open(home_dir + img_path1, "wb") as f:
         f.write(base64.b64decode(image_base64))
 
 print("---- uploading to imgur ----")
